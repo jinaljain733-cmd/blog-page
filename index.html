@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog Website</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #fafaf8;
+      --ink: #1c1b18;
+      --accent: #2563eb;
+      --accent-warm: #d97706;
+      --muted: #6b6a64;
+      --border: #e5e4de;
+      --card: #ffffff;
+      --surface: #f3f2ed;
+      --font-serif: 'Libre Baskerville', serif;
+      --font-sans: 'IBM Plex Sans', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); overflow-x: hidden; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(250,250,248,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 6%; display: flex; align-items: center; gap: 2rem; height: 60px;
+    }
+    .nav-logo { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--ink); text-decoration: none; flex-shrink: 0; }
+    .nav-logo em { font-style: italic; color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 1.2rem; }
+    .nav-search-btn { background: none; border: 1px solid var(--border); padding: .4rem .9rem; border-radius: 50px; color: var(--muted); font-size: .8rem; cursor: pointer; font-family: var(--font-sans); transition: border-color .2s; }
+    .nav-search-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .nav-subscribe {
+      background: var(--ink); color: #fff; padding: .5rem 1.2rem; border-radius: 50px;
+      font-size: .8rem; font-weight: 600; text-decoration: none; transition: background .2s;
+    }
+    .nav-subscribe:hover { background: var(--accent); }
+
+    /* FEATURED POST */
+    .featured { padding: 4rem 6% 3rem; display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; align-items: center; border-bottom: 1px solid var(--border); }
+    .featured-category { display: inline-block; background: var(--accent); color: #fff; font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: .3rem .8rem; border-radius: 4px; margin-bottom: 1.2rem; text-decoration: none; }
+    .featured-category.warm { background: var(--accent-warm); }
+    .featured h1 { font-family: var(--font-serif); font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 700; line-height: 1.25; margin-bottom: 1.2rem; }
+    .featured p { color: var(--muted); font-size: .95rem; line-height: 1.75; margin-bottom: 1.5rem; }
+    .featured-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .author-mini { display: flex; align-items: center; gap: .6rem; }
+    .author-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #60a5fa); flex-shrink: 0; }
+    .author-name { font-size: .85rem; font-weight: 600; }
+    .meta-dot { color: var(--border); }
+    .meta-text { color: var(--muted); font-size: .82rem; }
+    .read-btn { display: inline-flex; align-items: center; gap: .4rem; color: var(--accent); font-size: .85rem; font-weight: 600; text-decoration: none; margin-top: 1.2rem; }
+    .read-btn:hover .arrow { transform: translateX(4px); }
+    .arrow { transition: transform .2s; }
+    .featured-img { aspect-ratio: 4/3; background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #93c5fd; font-size: .9rem; }
+
+    /* MAIN LAYOUT */
+    .main-layout { display: grid; grid-template-columns: 1fr 320px; gap: 4rem; padding: 4rem 6%; }
+
+    /* POSTS */
+    .posts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .posts-header h2 { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 700; }
+    .posts-filter { display: flex; gap: .5rem; }
+    .filter-btn { background: none; border: 1px solid var(--border); padding: .35rem .9rem; border-radius: 50px; font-size: .78rem; font-family: var(--font-sans); color: var(--muted); cursor: pointer; transition: all .2s; }
+    .filter-btn.active, .filter-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+    /* POST CARD — HORIZONTAL */
+    .post-card { display: grid; grid-template-columns: 200px 1fr; gap: 1.5rem; padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+    .post-thumb { aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: .8rem; flex-shrink: 0; }
+    .post-cat { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); text-decoration: none; margin-bottom: .5rem; display: inline-block; }
+    .post-cat.warm { color: var(--accent-warm); }
+    .post-title { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; line-height: 1.35; margin-bottom: .5rem; }
+    .post-title a { color: var(--ink); text-decoration: none; transition: color .2s; }
+    .post-title a:hover { color: var(--accent); }
+    .post-excerpt { color: var(--muted); font-size: .85rem; line-height: 1.65; margin-bottom: .8rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .post-meta { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; }
+    .post-meta .author-mini .author-avatar { width: 28px; height: 28px; }
+    .post-meta .author-name { font-size: .8rem; }
+    .post-meta .meta-text { font-size: .78rem; }
+
+    /* SIDEBAR */
+    .sidebar-widget { margin-bottom: 2.5rem; }
+    .widget-title { font-family: var(--font-serif); font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem; padding-bottom: .6rem; border-bottom: 2px solid var(--ink); display: inline-block; }
+
+    /* Newsletter Widget */
+    .newsletter-widget { background: var(--ink); color: #fff; border-radius: 12px; padding: 1.5rem; }
+    .newsletter-widget h3 { font-family: var(--font-serif); font-size: 1.1rem; margin-bottom: .6rem; }
+    .newsletter-widget p { color: rgba(255,255,255,.6); font-size: .82rem; line-height: 1.6; margin-bottom: 1.2rem; }
+    .newsletter-widget input {
+      width: 100%; padding: .75rem 1rem; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      color: #fff; font-family: var(--font-sans); font-size: .85rem; border-radius: 8px; outline: none; margin-bottom: .7rem;
+    }
+    .newsletter-widget input::placeholder { color: rgba(255,255,255,.35); }
+    .newsletter-widget button {
+      width: 100%; padding: .75rem; background: var(--accent); color: #fff; border: none;
+      border-radius: 8px; font-family: var(--font-sans); font-weight: 600; font-size: .85rem; cursor: pointer; transition: opacity .2s;
+    }
+    .newsletter-widget button:hover { opacity: .9; }
+
+    /* Topics Widget */
+    .topics-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .topic-tag { border: 1px solid var(--border); padding: .4rem .9rem; border-radius: 50px; font-size: .8rem; color: var(--muted); text-decoration: none; transition: all .2s; }
+    .topic-tag:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+    /* Popular Posts Widget */
+    .popular-list { display: flex; flex-direction: column; gap: 1.2rem; }
+    .popular-item { display: flex; gap: 1rem; align-items: start; }
+    .popular-num { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--border); line-height: 1; flex-shrink: 0; width: 28px; }
+    .popular-title { font-size: .85rem; font-weight: 600; line-height: 1.4; margin-bottom: .3rem; }
+    .popular-title a { color: var(--ink); text-decoration: none; transition: color .2s; }
+    .popular-title a:hover { color: var(--accent); }
+    .popular-meta { color: var(--muted); font-size: .75rem; }
+
+    /* PAGINATION */
+    .pagination { display: flex; gap: .5rem; justify-content: center; padding: 3rem 0; }
+    .page-btn { width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 600; text-decoration: none; color: var(--muted); transition: all .2s; }
+    .page-btn.active, .page-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+    /* FOOTER */
+    footer { background: var(--ink); color: rgba(255,255,255,.7); padding: 4rem 6% 2rem; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+    .footer-brand .nav-logo { color: #fff; display: block; margin-bottom: 1rem; }
+    .footer-brand p { font-size: .85rem; line-height: 1.7; max-width: 260px; margin-bottom: 1.2rem; }
+    .social-row { display: flex; gap: .8rem; }
+    .social-btn { background: rgba(255,255,255,.1); color: #fff; padding: .4rem .9rem; border-radius: 6px; font-size: .78rem; text-decoration: none; transition: background .2s; }
+    .social-btn:hover { background: var(--accent); }
+    .footer-col h4 { color: #fff; font-size: .9rem; font-weight: 600; margin-bottom: 1.2rem; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: .6rem; }
+    .footer-col a { color: rgba(255,255,255,.5); text-decoration: none; font-size: .85rem; transition: color .2s; }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .footer-bottom p { font-size: .8rem; }
+
+    @media (max-width: 1024px) { .main-layout { grid-template-columns: 1fr; } .sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; } }
+    @media (max-width: 768px) { .featured { grid-template-columns: 1fr; } .featured-img { display: none; } .post-card { grid-template-columns: 1fr; } .post-thumb { aspect-ratio: 16/9; } .sidebar { grid-template-columns: 1fr; } .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .nav-links { display: none; } .footer-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#" class="nav-logo">The <em>Brief</em></a>
+    <ul class="nav-links">
+      <li><a href="#">Technology</a></li>
+      <li><a href="#">Design</a></li>
+      <li><a href="#">Business</a></li>
+      <li><a href="#">Culture</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-search-btn">🔍 Search</button>
+      <a href="#" class="nav-subscribe">Subscribe</a>
+    </div>
+  </nav>
+
+  <!-- FEATURED POST -->
+  <section class="featured">
+    <div class="featured-content">
+      <a href="#" class="featured-category">Technology</a>
+      <h1>The Quiet Revolution Reshaping How We Build Software</h1>
+      <p>A new generation of tools is changing the developer workflow from the ground up — not with a bang, but with a thousand small, deliberate improvements.</p>
+      <div class="featured-meta">
+        <div class="author-mini"><div class="author-avatar"></div><span class="author-name">Jordan Kim</span></div>
+        <span class="meta-dot">·</span>
+        <span class="meta-text">March 20, 2025</span>
+        <span class="meta-dot">·</span>
+        <span class="meta-text">8 min read</span>
+      </div>
+      <a href="#" class="read-btn">Read article <span class="arrow">→</span></a>
+    </div>
+    <div class="featured-img">Featured Article Image</div>
+  </section>
+
+  <div class="main-layout">
+    <!-- POSTS COLUMN -->
+    <main class="posts-section">
+      <div class="posts-header">
+        <h2>Latest Stories</h2>
+        <div class="posts-filter">
+          <button class="filter-btn active">All</button>
+          <button class="filter-btn">Design</button>
+          <button class="filter-btn">Tech</button>
+          <button class="filter-btn">Business</button>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-thumb">Post Image</div>
+        <div class="post-card-content">
+          <a href="#" class="post-cat warm">Design</a>
+          <div class="post-title"><a href="#">Why Brutalism in Web Design Is Having a Serious Comeback</a></div>
+          <p class="post-excerpt">After years of polished gradients and soft edges, designers are embracing rawness again — bold type, visible grids, and unapologetic structure.</p>
+          <div class="post-meta">
+            <div class="author-mini"><div class="author-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)"></div><span class="author-name">Maya Liu</span></div>
+            <span class="meta-dot">·</span><span class="meta-text">Mar 18 · 5 min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-thumb" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0)">Post Image</div>
+        <div class="post-card-content">
+          <a href="#" class="post-cat">Technology</a>
+          <div class="post-title"><a href="#">Open-Source AI Models Are Closing the Gap With Proprietary Giants</a></div>
+          <p class="post-excerpt">The gap between open-source and closed models has narrowed dramatically — and what that means for businesses and developers is still unfolding.</p>
+          <div class="post-meta">
+            <div class="author-mini"><div class="author-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)"></div><span class="author-name">Rohan Verma</span></div>
+            <span class="meta-dot">·</span><span class="meta-text">Mar 16 · 7 min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-thumb" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8)">Post Image</div>
+        <div class="post-card-content">
+          <a href="#" class="post-cat warm">Business</a>
+          <div class="post-title"><a href="#">The Product Founder: What It Means to Build with Taste</a></div>
+          <p class="post-excerpt">Some companies seem to ship things people didn't know they needed. The secret usually isn't engineering — it's editorial judgment.</p>
+          <div class="post-meta">
+            <div class="author-mini"><div class="author-avatar" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)"></div><span class="author-name">Sara Noel</span></div>
+            <span class="meta-dot">·</span><span class="meta-text">Mar 14 · 6 min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-thumb" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe)">Post Image</div>
+        <div class="post-card-content">
+          <a href="#" class="post-cat">Culture</a>
+          <div class="post-title"><a href="#">Slow Reading Is the New Productivity: Why Depth Is Winning Again</a></div>
+          <p class="post-excerpt">In a world of infinite scroll, a growing group of knowledge workers is deliberately going slower — and building better mental models as a result.</p>
+          <div class="post-meta">
+            <div class="author-mini"><div class="author-avatar" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)"></div><span class="author-name">Cal Osei</span></div>
+            <span class="meta-dot">·</span><span class="meta-text">Mar 12 · 4 min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-thumb" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">Post Image</div>
+        <div class="post-card-content">
+          <a href="#" class="post-cat warm">Technology</a>
+          <div class="post-title"><a href="#">What Happens When AI Can Write Better Code Than Most Developers?</a></div>
+          <p class="post-excerpt">It's already happening in pockets — and the implications for the software industry aren't what you'd expect.</p>
+          <div class="post-meta">
+            <div class="author-mini"><div class="author-avatar" style="background:linear-gradient(135deg,#f59e0b,#fb923c)"></div><span class="author-name">Jordan Kim</span></div>
+            <span class="meta-dot">·</span><span class="meta-text">Mar 10 · 9 min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pagination">
+        <a href="#" class="page-btn">‹</a>
+        <a href="#" class="page-btn active">1</a>
+        <a href="#" class="page-btn">2</a>
+        <a href="#" class="page-btn">3</a>
+        <a href="#" class="page-btn">…</a>
+        <a href="#" class="page-btn">12</a>
+        <a href="#" class="page-btn">›</a>
+      </div>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="sidebar-widget">
+        <div class="newsletter-widget">
+          <h3>Stay in the loop</h3>
+          <p>Get the best stories delivered to your inbox every Tuesday and Friday.</p>
+          <input type="email" placeholder="Your email address"/>
+          <button>Subscribe — it's free</button>
+        </div>
+      </div>
+
+      <div class="sidebar-widget">
+        <div class="widget-title">Popular This Week</div>
+        <div class="popular-list">
+          <div class="popular-item"><div class="popular-num">01</div><div><div class="popular-title"><a href="#">The Quiet Revolution Reshaping How We Build Software</a></div><div class="popular-meta">2.4k reads · 8 min</div></div></div>
+          <div class="popular-item"><div class="popular-num">02</div><div><div class="popular-title"><a href="#">Why Brutalism in Web Design Is Having a Serious Comeback</a></div><div class="popular-meta">1.8k reads · 5 min</div></div></div>
+          <div class="popular-item"><div class="popular-num">03</div><div><div class="popular-title"><a href="#">Open-Source AI Models Are Closing the Gap</a></div><div class="popular-meta">1.5k reads · 7 min</div></div></div>
+          <div class="popular-item"><div class="popular-num">04</div><div><div class="popular-title"><a href="#">What Happens When AI Can Write Better Code?</a></div><div class="popular-meta">1.2k reads · 9 min</div></div></div>
+        </div>
+      </div>
+
+      <div class="sidebar-widget">
+        <div class="widget-title">Browse Topics</div>
+        <div class="topics-list">
+          <a href="#" class="topic-tag">Technology</a>
+          <a href="#" class="topic-tag">Design</a>
+          <a href="#" class="topic-tag">Business</a>
+          <a href="#" class="topic-tag">AI & ML</a>
+          <a href="#" class="topic-tag">Culture</a>
+          <a href="#" class="topic-tag">Startups</a>
+          <a href="#" class="topic-tag">Productivity</a>
+          <a href="#" class="topic-tag">Leadership</a>
+          <a href="#" class="topic-tag">Writing</a>
+          <a href="#" class="topic-tag">Science</a>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">The <em style="font-style:italic;color:#60a5fa">Brief</em></a>
+        <p>Independent journalism about ideas, technology, and the future of work. Written for curious minds.</p>
+        <div class="social-row">
+          <a href="#" class="social-btn">Twitter</a>
+          <a href="#" class="social-btn">LinkedIn</a>
+          <a href="#" class="social-btn">RSS</a>
+        </div>
+      </div>
+      <div class="footer-col"><h4>Topics</h4><ul><li><a href="#">Technology</a></li><li><a href="#">Design</a></li><li><a href="#">Business</a></li><li><a href="#">Culture</a></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Writers</a></li><li><a href="#">Advertise</a></li><li><a href="#">Careers</a></li></ul></div>
+      <div class="footer-col"><h4>Support</h4><ul><li><a href="#">Newsletter</a></li><li><a href="#">Archives</a></li><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 The Brief. All rights reserved.</p>
+      <p>Independent · Ad-light · Reader-supported</p>
+    </div>
+  </footer>
+
+</body>
+</html>
