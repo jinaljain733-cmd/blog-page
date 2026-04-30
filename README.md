@@ -6,7 +6,9 @@ A responsive blog website built with HTML, CSS, and JavaScript.
 [View Live](https://jinaljain733-cmd.github.io/blog-page)
 
 ## 📸 Preview
-<!-- Add a screenshot of your project here -->
+![desktop screenshot](image.png)
+
+![Mobile screenshot](image-1.png)
 
 ## 🛠️ Tech Stack
 - HTML5
